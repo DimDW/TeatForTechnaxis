@@ -130,7 +130,7 @@ public class BookController {
         }
     }
 
-    @PutMapping("/books/{id}")
+    @PutMapping("/books/{title}")
     public ResponseEntity<Book>  readAlreadyBook (@PathVariable("id") long id, @RequestBody Book book){
         Optional<Book> bookData = bookRepository.findById(id);
         if (bookData.isPresent()& book.getReadAlready()) {
