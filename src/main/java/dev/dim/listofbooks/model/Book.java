@@ -29,16 +29,17 @@ public class Book {
     private String image;
 
 
-    public Book(String title, String description, String author, String ISBN, int printYear, String image) {
+    public Book(String title, String description, String author, String ISBN, int printYear, Boolean readAlready, String image) {
         this.title = title;
         this.description = description;
         this.author = author;
         this.ISBN = ISBN;
         this.printYear = printYear;
+        this.readAlready = readAlready;
         this.image = image;
     }
 
-    public Book() {
+    protected Book() {
 
     }
 

@@ -33,7 +33,7 @@ public class BookController {
     }
 
 
-    @GetMapping("/sortedBooks")
+    /*@GetMapping("/sortedBooks")
     public ResponseEntity<List<Book>> getAllBooks(@RequestParam(defaultValue = "id,desc") String[] sort) {
 
         try {
@@ -58,7 +58,7 @@ public class BookController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 
     @GetMapping("/books")
     public ResponseEntity<Map<String, Object>> getAllBooksPage(
@@ -87,7 +87,7 @@ public class BookController {
             if (title == null)
                 bookPage = bookRepository.findAll(pagingSort);
             else
-                bookPage = bookRepository.findByTitleContaining(title, pagingSort);
+                bookPage = bookRepository.findByTitleIgnoreCaseOrderByTitleAsc(title, pagingSort);
 
             books = bookPage.getContent();
 
@@ -104,23 +104,29 @@ public class BookController {
     }
 
 
-    @GetMapping("/books/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable("id") long id) {
-        Optional<Book> bookData = bookRepository.findById(id);
+ /*   @GetMapping("/books/{title}")
+    public ResponseEntity<Book> getBookByTitle(@PathVariable("title") String title, Pageable pageable) {
 
-        return bookData.map(book -> new ResponseEntity<>(book, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
+        try {
+            Page<Book> bookData = bookRepository.findByTitleContaining(title, pageable);
+            return bookData.map(book -> new ResponseEntity<>(book, HttpStatus.OK));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }*/
 
     @PostMapping("/books")
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         try {
-            Book _book = bookRepository.save(new Book(book.getTitle(),
+            Book _book = bookRepository.save(new Book(
+                    book.getTitle(),
                     book.getDescription(),
                     book.getAuthor(),
                     book.getISBN(),
                     book.getPrintYear(),
+                    book.getReadAlready(),
                     book.getImage()));
-                    _book.setReadAlready(false);
+
                     //ToDo @PostMapping("/uploadFile")
                     //public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
                     // return this.amazonClient.uploadFile(file);
@@ -130,12 +136,12 @@ public class BookController {
         }
     }
 
-    @PutMapping("/books/{title}")
+    @PutMapping("/books/{id}")
     public ResponseEntity<Book>  readAlreadyBook (@PathVariable("id") long id, @RequestBody Book book){
         Optional<Book> bookData = bookRepository.findById(id);
-        if (bookData.isPresent()& book.getReadAlready()) {
+        if (bookData.isPresent()& !book.getReadAlready()) {
             Book _book = bookData.get();
-            _book.setReadAlready(false);
+            _book.setReadAlready(true);
             return new ResponseEntity<>(bookRepository.save(_book), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
