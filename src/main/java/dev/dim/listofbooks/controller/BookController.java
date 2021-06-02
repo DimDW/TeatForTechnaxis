@@ -139,10 +139,14 @@ public class BookController {
     @PutMapping("/books/{id}")
     public ResponseEntity<Book>  readAlreadyBook (@PathVariable("id") long id, @RequestBody Book book){
         Optional<Book> bookData = bookRepository.findById(id);
-        if (bookData.isPresent()& !book.getReadAlready()) {
-            Book _book = bookData.get();
-            _book.setReadAlready(true);
-            return new ResponseEntity<>(bookRepository.save(_book), HttpStatus.OK);
+        if (bookData.isPresent()) {
+            if (book.getReadAlready())
+                return new ResponseEntity<>(HttpStatus.OK);
+            else {
+                Book _book = bookData.get();
+                _book.setReadAlready(true);
+                return new ResponseEntity<>(bookRepository.save(_book), HttpStatus.OK);
+            }
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -172,7 +176,7 @@ public class BookController {
             bookRepository.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

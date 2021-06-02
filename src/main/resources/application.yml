@@ -1,0 +1,5 @@
+amazonProperties:
+  endpointUrl: https://s3.eu-central-1.amazonaws.com
+  accessKey: AKIAVABCOQCC5J22EVPI
+  secretKey: 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
+  bucketName: bucket-for-test-technaxis
