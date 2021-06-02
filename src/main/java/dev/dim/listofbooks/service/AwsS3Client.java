@@ -1,9 +1,13 @@
 package dev.dim.listofbooks.service;
 
+/* deprecated
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.s3.AmazonS3Client;*/
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
+
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -32,8 +36,12 @@ public class AwsS3Client {
 
     @PostConstruct
     private void initializeAmazon() {
+        /* deprecated
         AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
-        this.s3client = new AmazonS3Client(credentials);
+        this.s3client = new AmazonS3Client(credentials);*/
+        BasicAWSCredentials creds = new BasicAWSCredentials("access_key", "secret_key");
+        AmazonS3 s3client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build();
+
     }
 
     public String uploadFile(MultipartFile multipartFile) {
