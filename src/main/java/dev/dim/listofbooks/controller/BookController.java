@@ -152,7 +152,7 @@ public class BookController {
         }
     }
 
-    @PutMapping("/books/{id}")
+    @PutMapping("/books/update/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable("id") long id, @RequestBody Book book) {
         Optional<Book> bookData = bookRepository.findById(id);
 
