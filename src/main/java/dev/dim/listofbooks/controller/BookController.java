@@ -2,6 +2,7 @@ package dev.dim.listofbooks.controller;
 
 import dev.dim.listofbooks.model.Book;
 import dev.dim.listofbooks.repository.BookRepository;
+import dev.dim.listofbooks.service.AwsS3Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,32 +34,6 @@ public class BookController {
     }
 
 
-    /*@GetMapping("/sortedBooks")
-    public ResponseEntity<List<Book>> getAllBooks(@RequestParam(defaultValue = "id,desc") String[] sort) {
-
-        try {
-            List<Order> orders = new ArrayList<Order>();
-
-            if (sort[0].contains(",")) {
-                for (String sortOrder : sort) {
-                    String[] _sort = sortOrder.split(",");
-                    orders.add(new Order(getSortDirection(_sort[1]), _sort[0]));
-                }
-            } else {
-                orders.add(new Order(getSortDirection(sort[1]), sort[0]));
-            }
-
-            List<Book> books = bookRepository.findAll(Sort.by(orders));
-
-            if (books.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            return new ResponseEntity<>(books, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }*/
 
     @GetMapping("/books")
     public ResponseEntity<Map<String, Object>> getAllBooksPage(
@@ -104,20 +79,11 @@ public class BookController {
     }
 
 
- /*   @GetMapping("/books/{title}")
-    public ResponseEntity<Book> getBookByTitle(@PathVariable("title") String title, Pageable pageable) {
-
-        try {
-            Page<Book> bookData = bookRepository.findByTitleContaining(title, pageable);
-            return bookData.map(book -> new ResponseEntity<>(book, HttpStatus.OK));
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }*/
 
     @PostMapping("/books")
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         try {
+            //AwsS3Client awsS3Client = new AwsS3Client();
             Book _book = bookRepository.save(new Book(
                     book.getTitle(),
                     book.getDescription(),
@@ -125,11 +91,10 @@ public class BookController {
                     book.getISBN(),
                     book.getPrintYear(),
                     book.getReadAlready(),
+                   // awsS3Client.uploadFile(book.getImage())
                     book.getImage()));
 
-                    //ToDo @PostMapping("/uploadFile")
-                    //public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
-                    // return this.amazonClient.uploadFile(file);
+
             return new ResponseEntity<>(_book, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
