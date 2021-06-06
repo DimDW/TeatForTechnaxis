@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 @RestController
 @RequestMapping("/storage/")
 class BucketController {
@@ -18,7 +20,7 @@ class BucketController {
     }
 
     @PostMapping("/uploadFile")
-    public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
+    public String uploadFile(@RequestPart(value = "file") /*Multipart*/File file) {
         return this.awsS3Client.uploadFile(file);
     }
 

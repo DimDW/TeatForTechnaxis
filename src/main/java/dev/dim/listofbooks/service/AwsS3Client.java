@@ -47,18 +47,18 @@ public class AwsS3Client {
 
     }
 
-    public String uploadFile(MultipartFile multipartFile) {
+    public String uploadFile(File file/*MultipartFile multipartFile*/) {
         String fileUrl = "";
         try {
-            File file = convertMultiPartToFile(multipartFile);
-            String fileName = generateFileName(multipartFile);
+            //File file = file;//convertMultiPartToFile(multipartFile);
+            String fileName = file.getName();//generateFileName(multipartFile);
             fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             uploadFileTos3bucket(fileName, file);
             file.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return fileUrl;
+        return "success";//fileUrl;
     }
 
     private File convertMultiPartToFile(MultipartFile file) throws IOException {

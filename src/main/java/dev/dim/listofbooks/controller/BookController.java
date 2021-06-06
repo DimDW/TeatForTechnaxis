@@ -1,6 +1,7 @@
 package dev.dim.listofbooks.controller;
 
 import dev.dim.listofbooks.model.Book;
+import dev.dim.listofbooks.model.BookSchema;
 import dev.dim.listofbooks.repository.BookRepository;
 import dev.dim.listofbooks.service.AwsS3Client;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +14,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.annotation.MultipartConfig;
+import java.io.File;
 import java.util.*;
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api")
 public class BookController {
 
     @Autowired
     BookRepository bookRepository;
+    @Autowired
+    BucketController bucketController;
 
     private Sort.Direction getSortDirection(String direction) {
         if (direction.equals("asc")) {
@@ -81,9 +86,10 @@ public class BookController {
 
 
     @PostMapping("/books")
-    public ResponseEntity<Book> createBook(@RequestBody Book book) {
+    public ResponseEntity<Book> createBook(@RequestBody BookSchema book, File image) {
         try {
             //AwsS3Client awsS3Client = new AwsS3Client();
+
             Book _book = bookRepository.save(new Book(
                     book.getTitle(),
                     book.getDescription(),
@@ -91,8 +97,7 @@ public class BookController {
                     book.getISBN(),
                     book.getPrintYear(),
                     book.getReadAlready(),
-                   // awsS3Client.uploadFile(book.getImage())
-                    book.getImage()));
+                    bucketController.uploadFile(image)));
 
 
             return new ResponseEntity<>(_book, HttpStatus.CREATED);
@@ -102,10 +107,10 @@ public class BookController {
     }
 
     @PutMapping("/books/{id}")
-    public ResponseEntity<Book>  readAlreadyBook (@PathVariable("id") long id, @RequestBody Book book){
+    public ResponseEntity<Book>  readAlreadyBook (@PathVariable("id") long id){
         Optional<Book> bookData = bookRepository.findById(id);
         if (bookData.isPresent()) {
-            if (book.getReadAlready())
+            if (bookData.get().getReadAlready())
                 return new ResponseEntity<>(HttpStatus.OK);
             else {
                 Book _book = bookData.get();
@@ -118,7 +123,7 @@ public class BookController {
     }
 
     @PutMapping("/books/update/{id}")
-    public ResponseEntity<Book> updateBook(@PathVariable("id") long id, @RequestBody Book book) {
+    public ResponseEntity<Book> updateBook(@PathVariable("id") long id, @RequestBody BookSchema book, File image) {
         Optional<Book> bookData = bookRepository.findById(id);
 
         if (bookData.isPresent()) {
@@ -127,7 +132,7 @@ public class BookController {
             _book.setDescription(book.getDescription());
             _book.setISBN(book.getISBN());
             _book.setPrintYear(book.getPrintYear());
-            _book.setImage(book.getImage());
+            _book.setImage(bucketController.uploadFile(image));
             _book.setReadAlready(false);
             return new ResponseEntity<>(bookRepository.save(_book), HttpStatus.OK);
         } else {
@@ -138,8 +143,9 @@ public class BookController {
     @DeleteMapping("/books/{id}")
     public ResponseEntity<HttpStatus> deleteBook(@PathVariable("id") long id) {
         try {
+            bucketController.deleteFile( bookRepository.getById(id).getImage());
             bookRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
