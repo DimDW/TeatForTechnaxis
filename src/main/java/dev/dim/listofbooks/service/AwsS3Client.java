@@ -1,22 +1,15 @@
 package dev.dim.listofbooks.service;
 
-/* deprecated
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.services.s3.AmazonS3Client;*/
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
-
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,18 +40,18 @@ public class AwsS3Client {
 
     }
 
-    public String uploadFile(File file/*MultipartFile multipartFile*/) {
+    public String uploadFile(MultipartFile multipartFile) {
         String fileUrl = "";
         try {
-            //File file = file;//convertMultiPartToFile(multipartFile);
-            String fileName = file.getName();//generateFileName(multipartFile);
+            File file = convertMultiPartToFile(multipartFile);
+            String fileName = generateFileName(multipartFile);
             fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             uploadFileTos3bucket(fileName, file);
             file.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "success";//fileUrl;
+        return fileUrl;
     }
 
     private File convertMultiPartToFile(MultipartFile file) throws IOException {

@@ -3,7 +3,6 @@ package dev.dim.listofbooks.model;
 import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
-import java.io.File;
 
 @Entity
 @Table (name = "Books")
